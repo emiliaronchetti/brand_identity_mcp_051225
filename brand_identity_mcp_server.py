@@ -1238,12 +1238,19 @@ if FastMCP:
         return json.dumps(chart, indent=2)
 
 # ============================================================================
-# MAIN
+# MAIN - Auto-run for FastMCP Cloud
 # ============================================================================
 
+# For FastMCP Cloud deployment, the server needs to run automatically
+if FastMCP:
+    # This will be called by FastMCP Cloud when the module is imported
+    pass
+else:
+    print("Warning: FastMCP not available. Install with: pip install fastmcp")
+
+# If running locally as a script
 if __name__ == "__main__":
     if FastMCP:
         mcp.run()
     else:
-        print("FastMCP not available. Install with: pip install fastmcp")
         print("For testing, you can import and use the functions directly.")
