@@ -1,23 +1,16 @@
 """
 Brand Identity Discovery MCP Server
-Integrated version combining astrology, Human Design, and brand strategy
-Output format: Clean Canva-style brand guidelines
+Optimized for FastMCP Cloud deployment
 """
 
 from datetime import datetime
 from typing import Optional
 import json
-import math
 
-try:
-    from mcp.server.fastmcp import FastMCP
-except ImportError:
-    print("Warning: FastMCP not available. Install with: pip install fastmcp")
-    FastMCP = None
+from mcp.server.fastmcp import FastMCP
 
 # Initialize MCP server
-if FastMCP:
-    mcp = FastMCP("Brand Identity Discovery")
+mcp = FastMCP("Brand Identity Discovery")
 
 # ============================================================================
 # VALIDATION
@@ -149,68 +142,6 @@ ZODIAC_SIGNS = {
     }
 }
 
-PLANETS = {
-    "Sun": {
-        "represents": "Core identity, ego, life force",
-        "brand_influence": "Overall brand personality and essence"
-    },
-    "Moon": {
-        "represents": "Emotions, instincts, inner needs",
-        "brand_influence": "Emotional connection and customer care"
-    },
-    "Mercury": {
-        "represents": "Communication, thinking, information",
-        "brand_influence": "Brand voice and messaging style"
-    },
-    "Venus": {
-        "represents": "Beauty, values, attraction",
-        "brand_influence": "Visual aesthetics and brand values"
-    },
-    "Mars": {
-        "represents": "Action, drive, energy",
-        "brand_influence": "Brand energy and competitive approach"
-    },
-    "Jupiter": {
-        "represents": "Growth, expansion, abundance",
-        "brand_influence": "Growth strategy and vision"
-    },
-    "Saturn": {
-        "represents": "Structure, discipline, boundaries",
-        "brand_influence": "Brand structure and professionalism"
-    },
-    "Uranus": {
-        "represents": "Innovation, revolution, uniqueness",
-        "brand_influence": "Innovation and differentiation"
-    },
-    "Neptune": {
-        "represents": "Dreams, inspiration, spirituality",
-        "brand_influence": "Brand mystique and inspiration"
-    },
-    "Pluto": {
-        "represents": "Transformation, power, depth",
-        "brand_influence": "Transformational impact"
-    }
-}
-
-HOUSES = {
-    1: {"area": "Self & Identity", "brand_aspect": "Brand personality"},
-    2: {"area": "Values & Resources", "brand_aspect": "Brand values & pricing"},
-    3: {"area": "Communication", "brand_aspect": "Messaging & content"},
-    4: {"area": "Home & Roots", "brand_aspect": "Brand foundation"},
-    5: {"area": "Creativity & Expression", "brand_aspect": "Creative expression"},
-    6: {"area": "Service & Work", "brand_aspect": "Service delivery"},
-    7: {"area": "Partnerships", "brand_aspect": "Collaborations"},
-    8: {"area": "Transformation", "brand_aspect": "Deep impact"},
-    9: {"area": "Philosophy & Travel", "brand_aspect": "Vision & expansion"},
-    10: {"area": "Career & Public Image", "brand_aspect": "Public brand image"},
-    11: {"area": "Community & Innovation", "brand_aspect": "Community building"},
-    12: {"area": "Spirituality & Unconscious", "brand_aspect": "Deeper meaning"}
-}
-
-# ============================================================================
-# HUMAN DESIGN DATA
-# ============================================================================
-
 HUMAN_DESIGN_TYPES = {
     "Manifestor": {
         "strategy": "Inform before acting",
@@ -273,10 +204,6 @@ HUMAN_DESIGN_PROFILES = {
     "6/2": {"name": "Role Model/Hermit", "brand_essence": "Wisdom through experience"},
     "6/3": {"name": "Role Model/Martyr", "brand_essence": "Authentic living example"}
 }
-
-# ============================================================================
-# BRAND ARCHETYPES
-# ============================================================================
 
 BRAND_ARCHETYPES = {
     "Innocent": {
@@ -375,7 +302,7 @@ def calculate_zodiac_sign(day: int, month: int) -> str:
         elif month == end_month and day < end_day:
             return sign
     
-    return "Capricorn"  # Default
+    return "Capricorn"
 
 def calculate_rising_sign(birth_hour: int, birth_minute: int) -> str:
     """Calculate rising sign from birth time (simplified)"""
@@ -417,7 +344,7 @@ def calculate_human_design_authority(hd_type: str, day: int) -> str:
     elif hd_type == "Projector":
         authorities = ["Splenic", "Ego", "Self-Projected", "Environmental", "Emotional"]
         return authorities[day % len(authorities)]
-    else:  # Reflector
+    else:
         return "Lunar"
 
 def calculate_human_design_profile(day: int, month: int) -> str:
@@ -430,8 +357,6 @@ def calculate_human_design_profile(day: int, month: int) -> str:
 def determine_brand_archetype(sun_sign: str, moon_sign: str, rising_sign: str, 
                               hd_type: str) -> str:
     """Determine primary brand archetype"""
-    
-    # Mapping system (simplified but meaningful)
     archetype_mapping = {
         "Aries": "Hero",
         "Taurus": "Everyperson",
@@ -455,32 +380,23 @@ def determine_brand_archetype(sun_sign: str, moon_sign: str, rising_sign: str,
         "Reflector": "Magician"
     }
     
-    # Weight sun sign most heavily
     primary = archetype_mapping.get(sun_sign, "Sage")
     
-    # Consider HD type for modification
     if hd_type in hd_archetypes:
         hd_influence = hd_archetypes[hd_type]
-        # If HD suggests different archetype, blend them
         if hd_influence != primary:
-            # Return the HD-influenced archetype 30% of the time
             return hd_influence if hash(sun_sign + hd_type) % 10 < 3 else primary
     
     return primary
 
-# ============================================================================
-# COLOR PALETTE GENERATION
-# ============================================================================
+def hex_to_rgb(hex_color: str) -> str:
+    """Convert hex color to RGB string"""
+    hex_color = hex_color.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return f"{r}, {g}, {b}"
 
 def generate_color_palette(archetype: str, sun_sign: str, moon_sign: str) -> dict:
-    """Generate color palette based on archetype and astrology"""
-    
-    element_colors = {
-        "Fire": {"base": "#FF5733", "accent": "#FFC300", "neutral": "#8B4513"},
-        "Earth": {"base": "#8B7355", "accent": "#556B2F", "neutral": "#A0826D"},
-        "Air": {"base": "#87CEEB", "accent": "#FFD700", "neutral": "#B0C4DE"},
-        "Water": {"base": "#4682B4", "accent": "#20B2AA", "neutral": "#708090"}
-    }
+    """Generate color palette based on archetype"""
     
     archetype_colors = {
         "Innocent": {"primary": "#FFE5E5", "secondary": "#B8E6FF", "accent": "#FFF8DC"},
@@ -527,80 +443,22 @@ def generate_color_palette(archetype: str, sun_sign: str, moon_sign: str) -> dic
         }
     }
 
-def hex_to_rgb(hex_color: str) -> str:
-    """Convert hex color to RGB string"""
-    hex_color = hex_color.lstrip('#')
-    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-    return f"{r}, {g}, {b}"
-
-# ============================================================================
-# TYPOGRAPHY GENERATION
-# ============================================================================
-
 def generate_typography(archetype: str, sun_sign: str) -> dict:
     """Generate typography recommendations"""
     
     archetype_fonts = {
-        "Innocent": {
-            "heading": "Quicksand, Nunito, or Poppins",
-            "body": "Open Sans or Lato",
-            "style": "Friendly, rounded, approachable"
-        },
-        "Sage": {
-            "heading": "Merriweather, Playfair Display, or Georgia",
-            "body": "Source Sans Pro or Roboto",
-            "style": "Classic, authoritative, readable"
-        },
-        "Explorer": {
-            "heading": "Montserrat Bold or Bebas Neue",
-            "body": "Raleway or Lato",
-            "style": "Bold, adventurous, rugged"
-        },
-        "Outlaw": {
-            "heading": "Oswald, Bebas Neue, or Impact",
-            "body": "Roboto or Open Sans",
-            "style": "Bold, edgy, rebellious"
-        },
-        "Magician": {
-            "heading": "Cinzel, Philosopher, or Cormorant Garamond",
-            "body": "Lora or Crimson Text",
-            "style": "Mystical, elegant, transformative"
-        },
-        "Hero": {
-            "heading": "Montserrat Black or Oswald",
-            "body": "Open Sans or Roboto",
-            "style": "Strong, confident, powerful"
-        },
-        "Lover": {
-            "heading": "Playfair Display or Cormorant Garamond",
-            "body": "Crimson Text or Lora",
-            "style": "Elegant, romantic, sophisticated"
-        },
-        "Jester": {
-            "heading": "Fredoka One or Baloo",
-            "body": "Quicksand or Nunito",
-            "style": "Playful, energetic, fun"
-        },
-        "Everyperson": {
-            "heading": "Open Sans or Lato",
-            "body": "Roboto or PT Sans",
-            "style": "Friendly, accessible, comfortable"
-        },
-        "Caregiver": {
-            "heading": "Nunito or Quicksand",
-            "body": "Open Sans or Lato",
-            "style": "Warm, soft, nurturing"
-        },
-        "Ruler": {
-            "heading": "Playfair Display or Cinzel",
-            "body": "Lora or Crimson Text",
-            "style": "Refined, authoritative, elegant"
-        },
-        "Creator": {
-            "heading": "Montserrat or Raleway",
-            "body": "Open Sans or Lato",
-            "style": "Modern, creative, versatile"
-        }
+        "Innocent": {"heading": "Quicksand, Nunito, or Poppins", "body": "Open Sans or Lato", "style": "Friendly, rounded, approachable"},
+        "Sage": {"heading": "Merriweather, Playfair Display, or Georgia", "body": "Source Sans Pro or Roboto", "style": "Classic, authoritative, readable"},
+        "Explorer": {"heading": "Montserrat Bold or Bebas Neue", "body": "Raleway or Lato", "style": "Bold, adventurous, rugged"},
+        "Outlaw": {"heading": "Oswald, Bebas Neue, or Impact", "body": "Roboto or Open Sans", "style": "Bold, edgy, rebellious"},
+        "Magician": {"heading": "Cinzel, Philosopher, or Cormorant Garamond", "body": "Lora or Crimson Text", "style": "Mystical, elegant, transformative"},
+        "Hero": {"heading": "Montserrat Black or Oswald", "body": "Open Sans or Roboto", "style": "Strong, confident, powerful"},
+        "Lover": {"heading": "Playfair Display or Cormorant Garamond", "body": "Crimson Text or Lora", "style": "Elegant, romantic, sophisticated"},
+        "Jester": {"heading": "Fredoka One or Baloo", "body": "Quicksand or Nunito", "style": "Playful, energetic, fun"},
+        "Everyperson": {"heading": "Open Sans or Lato", "body": "Roboto or PT Sans", "style": "Friendly, accessible, comfortable"},
+        "Caregiver": {"heading": "Nunito or Quicksand", "body": "Open Sans or Lato", "style": "Warm, soft, nurturing"},
+        "Ruler": {"heading": "Playfair Display or Cinzel", "body": "Lora or Crimson Text", "style": "Refined, authoritative, elegant"},
+        "Creator": {"heading": "Montserrat or Raleway", "body": "Open Sans or Lato", "style": "Modern, creative, versatile"}
     }
     
     fonts = archetype_fonts.get(archetype, archetype_fonts["Sage"])
@@ -609,22 +467,9 @@ def generate_typography(archetype: str, sun_sign: str) -> dict:
         "heading_font": fonts["heading"],
         "body_font": fonts["body"],
         "style_description": fonts["style"],
-        "sizes": {
-            "h1": "48-60px",
-            "h2": "36-42px",
-            "h3": "24-30px",
-            "body": "16-18px",
-            "caption": "14px"
-        },
-        "spacing": {
-            "line_height": "1.5-1.8",
-            "letter_spacing": "Normal (0) for body, tight (-0.5px) for headings"
-        }
+        "sizes": {"h1": "48-60px", "h2": "36-42px", "h3": "24-30px", "body": "16-18px", "caption": "14px"},
+        "spacing": {"line_height": "1.5-1.8", "letter_spacing": "Normal (0) for body, tight (-0.5px) for headings"}
     }
-
-# ============================================================================
-# LOGO & VISUAL GUIDELINES
-# ============================================================================
 
 def generate_logo_guidelines(archetype: str, sun_sign: str) -> dict:
     """Generate logo specifications"""
@@ -646,90 +491,27 @@ def generate_logo_guidelines(archetype: str, sun_sign: str) -> dict:
     
     return {
         "logo_style": logo_styles.get(archetype, "Clean, professional mark"),
-        "primary_version": {
-            "format": "Full color on white background",
-            "font": "Primary heading font",
-            "color": "Primary brand color"
-        },
-        "variations_needed": [
-            "Full color",
-            "Single color (black)",
-            "Single color (white)",
-            "Horizontal version",
-            "Stacked version",
-            "Icon only"
-        ],
-        "sizing_specifications": {
-            "minimum_size": "24px height for digital, 0.5 inch for print",
-            "clear_space": "Equal to height of logo on all sides",
-            "file_formats": ["SVG", "PNG", "PDF"]
-        }
+        "primary_version": {"format": "Full color on white background", "font": "Primary heading font", "color": "Primary brand color"},
+        "variations_needed": ["Full color", "Single color (black)", "Single color (white)", "Horizontal version", "Stacked version", "Icon only"],
+        "sizing_specifications": {"minimum_size": "24px height for digital, 0.5 inch for print", "clear_space": "Equal to height of logo on all sides", "file_formats": ["SVG", "PNG", "PDF"]}
     }
 
 def generate_visual_style(archetype: str, element: str) -> dict:
     """Generate visual style guidelines"""
     
     visual_styles = {
-        "Innocent": {
-            "aesthetic": "Soft, light, optimistic, simple",
-            "imagery": "Bright, happy, uplifting images",
-            "principles": ["Simplicity", "Clarity", "Positivity", "Friendliness"]
-        },
-        "Sage": {
-            "aesthetic": "Clean, authoritative, informative, trustworthy",
-            "imagery": "Professional, educational, thoughtful",
-            "principles": ["Clarity", "Authority", "Intelligence", "Trustworthiness"]
-        },
-        "Explorer": {
-            "aesthetic": "Rugged, natural, adventurous, authentic",
-            "imagery": "Nature, adventure, discovery, journeys",
-            "principles": ["Authenticity", "Adventure", "Freedom", "Discovery"]
-        },
-        "Outlaw": {
-            "aesthetic": "Bold, edgy, disruptive, unconventional",
-            "imagery": "Urban, raw, rebellious, provocative",
-            "principles": ["Disruption", "Authenticity", "Boldness", "Revolution"]
-        },
-        "Magician": {
-            "aesthetic": "Mystical, transformative, visionary, enchanting",
-            "imagery": "Transformative, magical, inspiring, cosmic",
-            "principles": ["Transformation", "Vision", "Wonder", "Inspiration"]
-        },
-        "Hero": {
-            "aesthetic": "Strong, confident, triumphant, powerful",
-            "imagery": "Achievement, strength, victory, courage",
-            "principles": ["Courage", "Excellence", "Achievement", "Strength"]
-        },
-        "Lover": {
-            "aesthetic": "Elegant, sensual, intimate, beautiful",
-            "imagery": "Beauty, romance, luxury, intimacy",
-            "principles": ["Beauty", "Passion", "Intimacy", "Elegance"]
-        },
-        "Jester": {
-            "aesthetic": "Fun, playful, energetic, joyful",
-            "imagery": "Playful, humorous, colorful, lively",
-            "principles": ["Fun", "Joy", "Energy", "Playfulness"]
-        },
-        "Everyperson": {
-            "aesthetic": "Friendly, relatable, comfortable, genuine",
-            "imagery": "Real people, everyday life, authenticity",
-            "principles": ["Authenticity", "Connection", "Comfort", "Reliability"]
-        },
-        "Caregiver": {
-            "aesthetic": "Warm, nurturing, supportive, gentle",
-            "imagery": "Care, support, comfort, warmth",
-            "principles": ["Compassion", "Support", "Warmth", "Care"]
-        },
-        "Ruler": {
-            "aesthetic": "Refined, prestigious, authoritative, luxurious",
-            "imagery": "Premium, sophisticated, powerful, prestigious",
-            "principles": ["Excellence", "Authority", "Prestige", "Quality"]
-        },
-        "Creator": {
-            "aesthetic": "Innovative, artistic, unique, expressive",
-            "imagery": "Creative, original, artistic, imaginative",
-            "principles": ["Innovation", "Creativity", "Originality", "Expression"]
-        }
+        "Innocent": {"aesthetic": "Soft, light, optimistic, simple", "imagery": "Bright, happy, uplifting images", "principles": ["Simplicity", "Clarity", "Positivity", "Friendliness"]},
+        "Sage": {"aesthetic": "Clean, authoritative, informative, trustworthy", "imagery": "Professional, educational, thoughtful", "principles": ["Clarity", "Authority", "Intelligence", "Trustworthiness"]},
+        "Explorer": {"aesthetic": "Rugged, natural, adventurous, authentic", "imagery": "Nature, adventure, discovery, journeys", "principles": ["Authenticity", "Adventure", "Freedom", "Discovery"]},
+        "Outlaw": {"aesthetic": "Bold, edgy, disruptive, unconventional", "imagery": "Urban, raw, rebellious, provocative", "principles": ["Disruption", "Authenticity", "Boldness", "Revolution"]},
+        "Magician": {"aesthetic": "Mystical, transformative, visionary, enchanting", "imagery": "Transformative, magical, inspiring, cosmic", "principles": ["Transformation", "Vision", "Wonder", "Inspiration"]},
+        "Hero": {"aesthetic": "Strong, confident, triumphant, powerful", "imagery": "Achievement, strength, victory, courage", "principles": ["Courage", "Excellence", "Achievement", "Strength"]},
+        "Lover": {"aesthetic": "Elegant, sensual, intimate, beautiful", "imagery": "Beauty, romance, luxury, intimacy", "principles": ["Beauty", "Passion", "Intimacy", "Elegance"]},
+        "Jester": {"aesthetic": "Fun, playful, energetic, joyful", "imagery": "Playful, humorous, colorful, lively", "principles": ["Fun", "Joy", "Energy", "Playfulness"]},
+        "Everyperson": {"aesthetic": "Friendly, relatable, comfortable, genuine", "imagery": "Real people, everyday life, authenticity", "principles": ["Authenticity", "Connection", "Comfort", "Reliability"]},
+        "Caregiver": {"aesthetic": "Warm, nurturing, supportive, gentle", "imagery": "Care, support, comfort, warmth", "principles": ["Compassion", "Support", "Warmth", "Care"]},
+        "Ruler": {"aesthetic": "Refined, prestigious, authoritative, luxurious", "imagery": "Premium, sophisticated, powerful, prestigious", "principles": ["Excellence", "Authority", "Prestige", "Quality"]},
+        "Creator": {"aesthetic": "Innovative, artistic, unique, expressive", "imagery": "Creative, original, artistic, imaginative", "principles": ["Innovation", "Creativity", "Originality", "Expression"]}
     }
     
     style = visual_styles.get(archetype, visual_styles["Sage"])
@@ -738,94 +520,26 @@ def generate_visual_style(archetype: str, element: str) -> dict:
         "overall_aesthetic": style["aesthetic"],
         "imagery_style": style["imagery"],
         "design_principles": style["principles"],
-        "photography_direction": {
-            "style": f"Images should feel {style['aesthetic']}",
-            "subjects": style["imagery"],
-            "mood": style["aesthetic"].split(',')[0]
-        },
+        "photography_direction": {"style": f"Images should feel {style['aesthetic']}", "subjects": style["imagery"], "mood": style["aesthetic"].split(',')[0]},
         "graphic_elements": f"Use shapes and patterns that reinforce {style['aesthetic']} feeling"
     }
-
-# ============================================================================
-# BRAND VOICE
-# ============================================================================
 
 def generate_brand_voice(archetype: str, mercury_sign: str) -> dict:
     """Generate brand voice guidelines"""
     
     voice_profiles = {
-        "Innocent": {
-            "personality": "Optimistic, simple, honest, pure",
-            "tone": "Friendly, encouraging, positive",
-            "dos": ["Use simple language", "Be encouraging", "Focus on happiness"],
-            "donts": ["Be cynical", "Use complex jargon", "Be negative"]
-        },
-        "Sage": {
-            "personality": "Intelligent, analytical, thoughtful, guiding",
-            "tone": "Authoritative, informative, thoughtful",
-            "dos": ["Share knowledge", "Be clear and accurate", "Guide with wisdom"],
-            "donts": ["Dumb down content", "Make unsubstantiated claims", "Be preachy"]
-        },
-        "Explorer": {
-            "personality": "Adventurous, authentic, brave, free",
-            "tone": "Bold, inspiring, authentic",
-            "dos": ["Inspire adventure", "Be authentic", "Encourage discovery"],
-            "donts": ["Be boring", "Focus on safety", "Be conventional"]
-        },
-        "Outlaw": {
-            "personality": "Rebellious, disruptive, provocative, raw",
-            "tone": "Bold, direct, challenging",
-            "dos": ["Challenge norms", "Be provocative", "Speak truth"],
-            "donts": ["Play it safe", "Follow trends", "Be corporate"]
-        },
-        "Magician": {
-            "personality": "Visionary, inspirational, transformative, magical",
-            "tone": "Inspiring, mystical, transformative",
-            "dos": ["Inspire transformation", "Create wonder", "Be visionary"],
-            "donts": ["Be mundane", "Focus on limitations", "Be skeptical"]
-        },
-        "Hero": {
-            "personality": "Courageous, inspiring, determined, triumphant",
-            "tone": "Motivating, confident, strong",
-            "dos": ["Inspire courage", "Celebrate achievement", "Be empowering"],
-            "donts": ["Be defeatist", "Focus on weakness", "Be passive"]
-        },
-        "Lover": {
-            "personality": "Passionate, intimate, sensual, devoted",
-            "tone": "Warm, intimate, elegant",
-            "dos": ["Create intimacy", "Be sensual", "Celebrate beauty"],
-            "donts": ["Be cold", "Be utilitarian", "Be impersonal"]
-        },
-        "Jester": {
-            "personality": "Fun, playful, irreverent, joyful",
-            "tone": "Playful, humorous, lighthearted",
-            "dos": ["Have fun", "Use humor", "Be spontaneous"],
-            "donts": ["Be serious", "Be boring", "Be corporate"]
-        },
-        "Everyperson": {
-            "personality": "Friendly, down-to-earth, reliable, genuine",
-            "tone": "Conversational, warm, authentic",
-            "dos": ["Be relatable", "Keep it real", "Build connection"],
-            "donts": ["Be pretentious", "Use jargon", "Be distant"]
-        },
-        "Caregiver": {
-            "personality": "Compassionate, nurturing, supportive, warm",
-            "tone": "Caring, gentle, supportive",
-            "dos": ["Show empathy", "Offer support", "Be warm"],
-            "donts": ["Be cold", "Be critical", "Be dismissive"]
-        },
-        "Ruler": {
-            "personality": "Authoritative, confident, refined, prestigious",
-            "tone": "Sophisticated, authoritative, refined",
-            "dos": ["Demonstrate expertise", "Be confident", "Maintain quality"],
-            "donts": ["Be casual", "Lower standards", "Be apologetic"]
-        },
-        "Creator": {
-            "personality": "Innovative, imaginative, artistic, original",
-            "tone": "Creative, inspiring, original",
-            "dos": ["Be innovative", "Inspire creativity", "Be authentic"],
-            "donts": ["Be conventional", "Copy others", "Be formulaic"]
-        }
+        "Innocent": {"personality": "Optimistic, simple, honest, pure", "tone": "Friendly, encouraging, positive", "dos": ["Use simple language", "Be encouraging", "Focus on happiness"], "donts": ["Be cynical", "Use complex jargon", "Be negative"]},
+        "Sage": {"personality": "Intelligent, analytical, thoughtful, guiding", "tone": "Authoritative, informative, thoughtful", "dos": ["Share knowledge", "Be clear and accurate", "Guide with wisdom"], "donts": ["Dumb down content", "Make unsubstantiated claims", "Be preachy"]},
+        "Explorer": {"personality": "Adventurous, authentic, brave, free", "tone": "Bold, inspiring, authentic", "dos": ["Inspire adventure", "Be authentic", "Encourage discovery"], "donts": ["Be boring", "Focus on safety", "Be conventional"]},
+        "Outlaw": {"personality": "Rebellious, disruptive, provocative, raw", "tone": "Bold, direct, challenging", "dos": ["Challenge norms", "Be provocative", "Speak truth"], "donts": ["Play it safe", "Follow trends", "Be corporate"]},
+        "Magician": {"personality": "Visionary, inspirational, transformative, magical", "tone": "Inspiring, mystical, transformative", "dos": ["Inspire transformation", "Create wonder", "Be visionary"], "donts": ["Be mundane", "Focus on limitations", "Be skeptical"]},
+        "Hero": {"personality": "Courageous, inspiring, determined, triumphant", "tone": "Motivating, confident, strong", "dos": ["Inspire courage", "Celebrate achievement", "Be empowering"], "donts": ["Be defeatist", "Focus on weakness", "Be passive"]},
+        "Lover": {"personality": "Passionate, intimate, sensual, devoted", "tone": "Warm, intimate, elegant", "dos": ["Create intimacy", "Be sensual", "Celebrate beauty"], "donts": ["Be cold", "Be utilitarian", "Be impersonal"]},
+        "Jester": {"personality": "Fun, playful, irreverent, joyful", "tone": "Playful, humorous, lighthearted", "dos": ["Have fun", "Use humor", "Be spontaneous"], "donts": ["Be serious", "Be boring", "Be corporate"]},
+        "Everyperson": {"personality": "Friendly, down-to-earth, reliable, genuine", "tone": "Conversational, warm, authentic", "dos": ["Be relatable", "Keep it real", "Build connection"], "donts": ["Be pretentious", "Use jargon", "Be distant"]},
+        "Caregiver": {"personality": "Compassionate, nurturing, supportive, warm", "tone": "Caring, gentle, supportive", "dos": ["Show empathy", "Offer support", "Be warm"], "donts": ["Be cold", "Be critical", "Be dismissive"]},
+        "Ruler": {"personality": "Authoritative, confident, refined, prestigious", "tone": "Sophisticated, authoritative, refined", "dos": ["Demonstrate expertise", "Be confident", "Maintain quality"], "donts": ["Be casual", "Lower standards", "Be apologetic"]},
+        "Creator": {"personality": "Innovative, imaginative, artistic, original", "tone": "Creative, inspiring, original", "dos": ["Be innovative", "Inspire creativity", "Be authentic"], "donts": ["Be conventional", "Copy others", "Be formulaic"]}
     }
     
     voice = voice_profiles.get(archetype, voice_profiles["Sage"])
@@ -836,10 +550,6 @@ def generate_brand_voice(archetype: str, mercury_sign: str) -> dict:
         "dos": voice["dos"],
         "donts": voice["donts"]
     }
-
-# ============================================================================
-# MAIN BRAND GUIDELINES GENERATION
-# ============================================================================
 
 def format_brand_guidelines(birth_data: dict, astrology: dict, human_design: dict,
                            archetype: str, colors: dict, typography: dict,
@@ -990,267 +700,166 @@ Mood: {visual['photography_direction']['mood']}
 # MCP TOOLS
 # ============================================================================
 
-if FastMCP:
-    @mcp.tool()
-    def generate_brand_identity(
-        birth_date: str,
-        birth_time: str,
-        birth_location: str,
-        business_name: Optional[str] = None
-    ) -> str:
-        """
-        Generate complete brand identity guidelines based on birth data.
+@mcp.tool()
+def generate_brand_identity(
+    birth_date: str,
+    birth_time: str,
+    birth_location: str,
+    business_name: Optional[str] = None
+) -> str:
+    """
+    Generate complete brand identity guidelines based on birth data.
+    
+    Args:
+        birth_date: Birth date in YYYY-MM-DD format
+        birth_time: Birth time in HH:MM format (24-hour)
+        birth_location: Birth location (city, country)
+        business_name: Optional business name for personalization
         
-        Args:
-            birth_date: Birth date in YYYY-MM-DD format
-            birth_time: Birth time in HH:MM format (24-hour)
-            birth_location: Birth location (city, country)
-            business_name: Optional business name for personalization
-            
-        Returns:
-            Complete Canva-style brand guidelines
-        """
-        
-        # Validate inputs
-        validation = validate_birth_data(birth_date, birth_time, birth_location)
-        if not validation["valid"]:
-            return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
-        
-        # Parse birth data
-        date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-        time_obj = datetime.strptime(birth_time, "%H:%M")
-        
-        day = date_obj.day
-        month = date_obj.month
-        year = date_obj.year
-        hour = time_obj.hour
-        minute = time_obj.minute
-        
-        # Calculate astrology
-        sun_sign = calculate_zodiac_sign(day, month)
-        moon_sign = calculate_moon_sign(day, month, year)
-        rising_sign = calculate_rising_sign(hour, minute)
-        
-        astrology = {
-            "sun_sign": sun_sign,
-            "moon_sign": moon_sign,
-            "rising_sign": rising_sign,
-            "sun_element": ZODIAC_SIGNS[sun_sign]["element"]
-        }
-        
-        # Calculate Human Design
-        hd_type = calculate_human_design_type(day, month, hour)
-        hd_authority = calculate_human_design_authority(hd_type, day)
-        hd_profile = calculate_human_design_profile(day, month)
-        
-        human_design = {
-            "type": hd_type,
-            "authority": hd_authority,
-            "profile": hd_profile
-        }
-        
-        # Determine brand archetype
-        archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
-        
-        # Generate all brand elements
-        colors = generate_color_palette(archetype, sun_sign, moon_sign)
-        typography = generate_typography(archetype, sun_sign)
-        logo = generate_logo_guidelines(archetype, sun_sign)
-        visual = generate_visual_style(archetype, astrology["sun_element"])
-        voice = generate_brand_voice(archetype, sun_sign)
-        
-        # Format guidelines
-        birth_data = {
-            "date": birth_date,
-            "time": birth_time,
-            "location": birth_location
-        }
-        
-        guidelines = format_brand_guidelines(
-            birth_data, astrology, human_design, archetype,
-            colors, typography, logo, visual, voice
-        )
-        
-        return guidelines
+    Returns:
+        Complete Canva-style brand guidelines
+    """
+    
+    validation = validate_birth_data(birth_date, birth_time, birth_location)
+    if not validation["valid"]:
+        return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
+    
+    date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    time_obj = datetime.strptime(birth_time, "%H:%M")
+    
+    day, month, year = date_obj.day, date_obj.month, date_obj.year
+    hour, minute = time_obj.hour, time_obj.minute
+    
+    sun_sign = calculate_zodiac_sign(day, month)
+    moon_sign = calculate_moon_sign(day, month, year)
+    rising_sign = calculate_rising_sign(hour, minute)
+    
+    astrology = {"sun_sign": sun_sign, "moon_sign": moon_sign, "rising_sign": rising_sign, "sun_element": ZODIAC_SIGNS[sun_sign]["element"]}
+    
+    hd_type = calculate_human_design_type(day, month, hour)
+    hd_authority = calculate_human_design_authority(hd_type, day)
+    hd_profile = calculate_human_design_profile(day, month)
+    
+    human_design = {"type": hd_type, "authority": hd_authority, "profile": hd_profile}
+    
+    archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
+    
+    colors = generate_color_palette(archetype, sun_sign, moon_sign)
+    typography = generate_typography(archetype, sun_sign)
+    logo = generate_logo_guidelines(archetype, sun_sign)
+    visual = generate_visual_style(archetype, astrology["sun_element"])
+    voice = generate_brand_voice(archetype, sun_sign)
+    
+    birth_data = {"date": birth_date, "time": birth_time, "location": birth_location}
+    
+    guidelines = format_brand_guidelines(birth_data, astrology, human_design, archetype, colors, typography, logo, visual, voice)
+    
+    return guidelines
 
-    @mcp.tool()
-    def get_color_palette_only(
-        birth_date: str,
-        birth_time: str,
-        birth_location: str
-    ) -> str:
-        """
-        Generate only the color palette based on birth data.
-        
-        Args:
-            birth_date: Birth date in YYYY-MM-DD format
-            birth_time: Birth time in HH:MM format (24-hour)
-            birth_location: Birth location (city, country)
-            
-        Returns:
-            Color palette with hex codes and usage guidelines
-        """
-        
-        validation = validate_birth_data(birth_date, birth_time, birth_location)
-        if not validation["valid"]:
-            return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
-        
-        date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-        day, month, year = date_obj.day, date_obj.month, date_obj.year
-        
-        sun_sign = calculate_zodiac_sign(day, month)
-        moon_sign = calculate_moon_sign(day, month, year)
-        
-        time_obj = datetime.strptime(birth_time, "%H:%M")
-        hour = time_obj.hour
-        
-        hd_type = calculate_human_design_type(day, month, hour)
-        rising_sign = calculate_rising_sign(hour, time_obj.minute)
-        
-        archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
-        colors = generate_color_palette(archetype, sun_sign, moon_sign)
-        
-        return json.dumps(colors, indent=2)
+@mcp.tool()
+def get_color_palette_only(birth_date: str, birth_time: str, birth_location: str) -> str:
+    """Generate only the color palette based on birth data"""
+    
+    validation = validate_birth_data(birth_date, birth_time, birth_location)
+    if not validation["valid"]:
+        return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
+    
+    date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    day, month, year = date_obj.day, date_obj.month, date_obj.year
+    
+    sun_sign = calculate_zodiac_sign(day, month)
+    moon_sign = calculate_moon_sign(day, month, year)
+    
+    time_obj = datetime.strptime(birth_time, "%H:%M")
+    hour = time_obj.hour
+    
+    hd_type = calculate_human_design_type(day, month, hour)
+    rising_sign = calculate_rising_sign(hour, time_obj.minute)
+    
+    archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
+    colors = generate_color_palette(archetype, sun_sign, moon_sign)
+    
+    return json.dumps(colors, indent=2)
 
-    @mcp.tool()
-    def get_typography_only(
-        birth_date: str,
-        birth_time: str,
-        birth_location: str
-    ) -> str:
-        """
-        Generate only typography recommendations based on birth data.
-        
-        Args:
-            birth_date: Birth date in YYYY-MM-DD format
-            birth_time: Birth time in HH:MM format (24-hour)
-            birth_location: Birth location (city, country)
-            
-        Returns:
-            Typography recommendations with fonts and sizing
-        """
-        
-        validation = validate_birth_data(birth_date, birth_time, birth_location)
-        if not validation["valid"]:
-            return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
-        
-        date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-        day, month, year = date_obj.day, date_obj.month, date_obj.year
-        
-        sun_sign = calculate_zodiac_sign(day, month)
-        moon_sign = calculate_moon_sign(day, month, year)
-        
-        time_obj = datetime.strptime(birth_time, "%H:%M")
-        hour = time_obj.hour
-        
-        hd_type = calculate_human_design_type(day, month, hour)
-        rising_sign = calculate_rising_sign(hour, time_obj.minute)
-        
-        archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
-        typography = generate_typography(archetype, sun_sign)
-        
-        return json.dumps(typography, indent=2)
+@mcp.tool()
+def get_typography_only(birth_date: str, birth_time: str, birth_location: str) -> str:
+    """Generate only typography recommendations based on birth data"""
+    
+    validation = validate_birth_data(birth_date, birth_time, birth_location)
+    if not validation["valid"]:
+        return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
+    
+    date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    day, month, year = date_obj.day, date_obj.month, date_obj.year
+    
+    sun_sign = calculate_zodiac_sign(day, month)
+    moon_sign = calculate_moon_sign(day, month, year)
+    
+    time_obj = datetime.strptime(birth_time, "%H:%M")
+    hour = time_obj.hour
+    
+    hd_type = calculate_human_design_type(day, month, hour)
+    rising_sign = calculate_rising_sign(hour, time_obj.minute)
+    
+    archetype = determine_brand_archetype(sun_sign, moon_sign, rising_sign, hd_type)
+    typography = generate_typography(archetype, sun_sign)
+    
+    return json.dumps(typography, indent=2)
 
-    @mcp.tool()
-    def calculate_birth_chart(
-        birth_date: str,
-        birth_time: str,
-        birth_location: str
-    ) -> str:
-        """
-        Calculate astrological birth chart (Sun, Moon, Rising signs).
-        
-        Args:
-            birth_date: Birth date in YYYY-MM-DD format
-            birth_time: Birth time in HH:MM format (24-hour)
-            birth_location: Birth location (city, country)
-            
-        Returns:
-            Birth chart with Sun, Moon, and Rising signs
-        """
-        
-        validation = validate_birth_data(birth_date, birth_time, birth_location)
-        if not validation["valid"]:
-            return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
-        
-        date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-        time_obj = datetime.strptime(birth_time, "%H:%M")
-        
-        day, month, year = date_obj.day, date_obj.month, date_obj.year
-        hour, minute = time_obj.hour, time_obj.minute
-        
-        sun_sign = calculate_zodiac_sign(day, month)
-        moon_sign = calculate_moon_sign(day, month, year)
-        rising_sign = calculate_rising_sign(hour, minute)
-        
-        chart = {
-            "sun_sign": sun_sign,
-            "sun_traits": ZODIAC_SIGNS[sun_sign],
-            "moon_sign": moon_sign,
-            "moon_traits": ZODIAC_SIGNS[moon_sign],
-            "rising_sign": rising_sign,
-            "rising_traits": ZODIAC_SIGNS[rising_sign]
-        }
-        
-        return json.dumps(chart, indent=2)
+@mcp.tool()
+def calculate_birth_chart(birth_date: str, birth_time: str, birth_location: str) -> str:
+    """Calculate astrological birth chart (Sun, Moon, Rising signs)"""
+    
+    validation = validate_birth_data(birth_date, birth_time, birth_location)
+    if not validation["valid"]:
+        return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
+    
+    date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    time_obj = datetime.strptime(birth_time, "%H:%M")
+    
+    day, month, year = date_obj.day, date_obj.month, date_obj.year
+    hour, minute = time_obj.hour, time_obj.minute
+    
+    sun_sign = calculate_zodiac_sign(day, month)
+    moon_sign = calculate_moon_sign(day, month, year)
+    rising_sign = calculate_rising_sign(hour, minute)
+    
+    chart = {
+        "sun_sign": sun_sign,
+        "sun_traits": ZODIAC_SIGNS[sun_sign],
+        "moon_sign": moon_sign,
+        "moon_traits": ZODIAC_SIGNS[moon_sign],
+        "rising_sign": rising_sign,
+        "rising_traits": ZODIAC_SIGNS[rising_sign]
+    }
+    
+    return json.dumps(chart, indent=2)
 
-    @mcp.tool()
-    def calculate_human_design(
-        birth_date: str,
-        birth_time: str,
-        birth_location: str
-    ) -> str:
-        """
-        Calculate Human Design chart (Type, Authority, Profile).
-        
-        Args:
-            birth_date: Birth date in YYYY-MM-DD format
-            birth_time: Birth time in HH:MM format (24-hour)
-            birth_location: Birth location (city, country)
-            
-        Returns:
-            Human Design chart with Type, Authority, and Profile
-        """
-        
-        validation = validate_birth_data(birth_date, birth_time, birth_location)
-        if not validation["valid"]:
-            return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
-        
-        date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-        time_obj = datetime.strptime(birth_time, "%H:%M")
-        
-        day, month = date_obj.day, date_obj.month
-        hour = time_obj.hour
-        
-        hd_type = calculate_human_design_type(day, month, hour)
-        hd_authority = calculate_human_design_authority(hd_type, day)
-        hd_profile = calculate_human_design_profile(day, month)
-        
-        chart = {
-            "type": hd_type,
-            "type_details": HUMAN_DESIGN_TYPES[hd_type],
-            "authority": hd_authority,
-            "authority_description": HUMAN_DESIGN_AUTHORITIES[hd_authority],
-            "profile": hd_profile,
-            "profile_details": HUMAN_DESIGN_PROFILES[hd_profile]
-        }
-        
-        return json.dumps(chart, indent=2)
-
-# ============================================================================
-# MAIN - Auto-run for FastMCP Cloud
-# ============================================================================
-
-# For FastMCP Cloud deployment, the server needs to run automatically
-if FastMCP:
-    # This will be called by FastMCP Cloud when the module is imported
-    pass
-else:
-    print("Warning: FastMCP not available. Install with: pip install fastmcp")
-
-# If running locally as a script
-if __name__ == "__main__":
-    if FastMCP:
-        mcp.run()
-    else:
-        print("For testing, you can import and use the functions directly.")
+@mcp.tool()
+def calculate_human_design(birth_date: str, birth_time: str, birth_location: str) -> str:
+    """Calculate Human Design chart (Type, Authority, Profile)"""
+    
+    validation = validate_birth_data(birth_date, birth_time, birth_location)
+    if not validation["valid"]:
+        return json.dumps({"error": "Validation failed", "details": validation["errors"]}, indent=2)
+    
+    date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    time_obj = datetime.strptime(birth_time, "%H:%M")
+    
+    day, month = date_obj.day, date_obj.month
+    hour = time_obj.hour
+    
+    hd_type = calculate_human_design_type(day, month, hour)
+    hd_authority = calculate_human_design_authority(hd_type, day)
+    hd_profile = calculate_human_design_profile(day, month)
+    
+    chart = {
+        "type": hd_type,
+        "type_details": HUMAN_DESIGN_TYPES[hd_type],
+        "authority": hd_authority,
+        "authority_description": HUMAN_DESIGN_AUTHORITIES[hd_authority],
+        "profile": hd_profile,
+        "profile_details": HUMAN_DESIGN_PROFILES[hd_profile]
+    }
+    
+    return json.dumps(chart, indent=2)
